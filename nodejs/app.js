@@ -1,53 +1,37 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var mineRouter = require('./routes/mine');
-var newTransactionRouter = require('./routes/new_transaction');
-var chainRouter = require('./routes/full_chain');
-var registerRouter = require('./routes/register');
-var resolveRouter = require('./routes/consensus');
-require('./boot')
+const express = require('express')
+const morgan = require('morgan')
+const bodyParser = require('body-parser')
+const cors = require('cors');
 
-var app = express();
+const app = express();
 
 // view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
+const port = 8089
+const varsys = "http://localhost:4200"
+exports.varsys = varsys;
+
+app.listen(port)
+
+app
+    .use(morgan('dev'))
+    .use(bodyParser.json())
+    .use(cors())
 
 
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+require('./routes/mine')(app);
+require('./routes/new_transaction')(app);
+require('./routes/full_chain')(app);
+require('./routes/register')(app);
+require('./routes/consensus')(app);
+require('./routes/newuuid')(app);
+require('./routes/solde')(app);
+require('./routes/connexion')(app);
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/mine', mineRouter);
-app.use('/transactions/new', newTransactionRouter);
-app.use('/chaine', chainRouter);
-app.use('/register', registerRouter);
-app.use('/nodes/resolve', resolveRouter);
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
+app.use(({res}) => {
+  const message = 'Impossible de trouver la ressource demandée ! vous pouvez essayer une autre url'
+
+  res.status(404).json
 });
 
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
-
-module.exports = {
-  app
-};
+console.log(`Démarrage de l'application nodejs `)

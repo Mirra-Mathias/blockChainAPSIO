@@ -1,0 +1,19 @@
+<p>
+  <mat-toolbar>
+    <span>APSIO Coin</span>
+    &nbsp;&nbsp;
+    <span *ngIf="!user" routerLink="/generateuuid">S'enregistrer</span>
+    &nbsp;&nbsp;
+    <span *ngIf="!user" routerLink="/connexion"> Connexion</span>
+
+    <span *ngIf="user" routerLink="/solde"> Solde</span>
+    &nbsp;&nbsp;
+    <span *ngIf="user"> Envoyer de l'argent</span>
+    &nbsp;&nbsp;
+    <span *ngIf="user" routerLink="/mine"> Miner du apsio coin</span>
+    &nbsp;&nbsp;
+    <span *ngIf="user" (click)="deconnexion()"> Deconnexion</span>
+  </mat-toolbar>
+</p>
+
+<router-outlet></router-outlet>

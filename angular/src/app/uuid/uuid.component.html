@@ -1,0 +1,8 @@
+<div style="text-align: center;">
+  <button mat-raised-button color="warn" (click)="generateUuid()">Generer votre uuid</button>
+  <div *ngIf="this.uuid.value">
+    <br>
+    <p>Veuillez bien conserver votre clé elle ne vous sera pas redonnée. Vous avez gagner 100 APSIO Coin pour la création de votre compte</p>
+    <p>{{this.uuid.value}}</p>
+  </div>
+</div>

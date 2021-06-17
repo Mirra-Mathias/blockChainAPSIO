@@ -1,16 +1,20 @@
 const crypto = require("crypto");
 const urllib = require('urllib');
 const requests = require("http");
+const request = require('request');
+const axios = require('axios')
 
 class BlockChain {
     _chain;
     _current_transactions;
     _nodes;
+    _selectnode;
 
     constructor() {
         this._chain = [];
         this._current_transactions = [];
-        this._nodes = new Set();
+        this._nodes = [];
+        this._selectnode = 0;
         this.new_block(100, 1);
     }
 
@@ -37,6 +41,37 @@ class BlockChain {
 
     set nodes(value) {
         this._nodes = value;
+    }
+
+    async mine() {
+        if (this._nodes.length > 0) {
+            if (this._selectnode >= this._nodes.length) {
+                this._selectnode = 0;
+            }
+
+
+            console.log('cc');
+
+            await axios.post(
+                this._nodes[this._selectnode] + '/syncChain',
+                {
+                    chain: this._chain,
+                    current_transactions: this._current_transactions
+                }, (error, res, body) => {}
+            )
+
+            await axios.get(
+                this._nodes[this._selectnode] + '/mine'
+            ).then(res =>{
+                this._current_transactions = [];
+                this._chain = res.data.chain
+            })
+            this._selectnode += 1
+        } else {
+            request('http://localhost:8089/mine', function (error, response, body) {
+                console.log('body:', body); // Print the HTML for the Google homepage.
+            });
+        }
     }
 
     new_block(proof, previous_hash = null) {
@@ -120,7 +155,8 @@ class BlockChain {
         // :param address : <str> Adresse du noeud. Par exemple, 'http://192.168.0.5:5000'
         // :return : Aucun
 
-        this._nodes.add(address.toString())
+        this._nodes.push(address.toString())
+        console.log(this._nodes);
     }
 
     valid_chain(chain) {
@@ -146,36 +182,6 @@ class BlockChain {
 
         return true;
     }
-
-    resolve_conflicts() {
-        let neighbours = this._nodes;
-        let new_chain = null;
-
-        let max_length = this._chain.length;
-
-        for (let node in neighbours) {
-            requests.get(`http://${node}/chain`, (resp) => {
-                if (resp.statusCode === 200) {
-                    let length = resp['length'];
-                    let chain = resp['_chain'];
-
-                    if(length > max_length && this.valid_chain(chain)){
-                        max_length = length;
-                        new_chain = chain;
-                    }
-                }
-            });
-        }
-        // Remplacer notre chaîne si nous avons découvert une nouvelle chaîne valide plus longue que la nôtre.
-        if (new_chain) {
-            this._chain = new_chain;
-            return true;
-        }
-
-        return false;
-
-
-    }
 }
 
-    module.exports = BlockChain;
+module.exports = BlockChain;

@@ -1,0 +1,6 @@
+<div  *ngIf="this.user == undefined" style="text-align: center;">
+  <input matInput type="text" [(ngModel)]="value"> &nbsp;<button mat-raised-button color="warn" (click)="this.login()">Connexion</button>
+</div>
+<div  *ngIf="this.user" style="text-align: center;">
+  <p>Connexion valider {{this.user}}</p>
+</div>
